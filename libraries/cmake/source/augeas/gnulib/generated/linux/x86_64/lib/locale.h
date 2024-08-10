@@ -48,11 +48,6 @@
 /* NetBSD 5.0 mis-defines NULL.  */
 #include <stddef.h>
 
-/* Mac OS X 10.5 defines the locale_t type in <xlocale.h>.  */
-#if 1
-# include <xlocale.h>
-#endif
-
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 /* C++ compatible function declaration macros.
    Copyright (C) 2010-2019 Free Software Foundation, Inc.
