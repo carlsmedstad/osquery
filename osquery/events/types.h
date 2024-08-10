@@ -21,7 +21,7 @@ namespace osquery {
 using EventContextID = uint64_t;
 using EventTime = uint64_t;
 using EventRecord = std::pair<std::string, EventTime>;
-using EventID = std::uint64_t;
+using EventID = uint64_t;
 using EventIDList = std::vector<EventID>;
 using EventIndex = std::map<EventTime, EventIDList>;
 
