@@ -93,5 +93,3 @@ function(googleLogMain)
       "${CMAKE_CURRENT_BINARY_DIR}"
   )
 endfunction()
-
-googleLogMain()

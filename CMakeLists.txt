@@ -84,43 +84,78 @@ function(main)
   generateInstallDirectives()
 endfunction()
 
+function(add_system_pkgconfig_dependency osquery_name system_name)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(${osquery_name} REQUIRED ${system_name})
+  add_library("thirdparty_${osquery_name}" INTERFACE)
+  add_real_target_dependencies(thirdparty_libraries "thirdparty_${osquery_name}")
+  target_link_libraries("thirdparty_${osquery_name}" INTERFACE ${${osquery_name}_LIBRARIES})
+  target_include_directories("thirdparty_${osquery_name}" INTERFACE ${${osquery_name}_INCLUDE_DIRS})
+endfunction()
+
+function(add_system_cmake_dependency)
+  cmake_parse_arguments(ARG "" "NAME;OSQUERY_NAME" "COMPONENTS;LINK_LIBRARIES" ${ARGN})
+  if(ARG_OSQUERY_NAME)
+    string(TOLOWER "${ARG_OSQUERY_NAME}" osquery_name)
+  else()
+    string(TOLOWER "thirdparty_${ARG_NAME}" osquery_name)
+  endif()
+  if(ARG_COMPONENTS)
+    find_package(${ARG_NAME} REQUIRED COMPONENTS ${ARG_COMPONENTS})
+  else()
+    find_package(${ARG_NAME} REQUIRED)
+  endif()
+  add_library(${osquery_name} INTERFACE)
+  add_real_target_dependencies(thirdparty_libraries ${osquery_name})
+  if(ARG_LINK_LIBRARIES)
+    target_link_libraries(${osquery_name} INTERFACE ${ARG_LINK_LIBRARIES})
+  endif()
+endfunction()
+
 function(importLibraries)
-  set(library_descriptor_list
+  set(system_library_descriptor_list
     # Leave lz4 at the top (see LZ4 CMakeLists.txt)
-    "Linux,Darwin,Windows:lz4"
-    "Linux,Darwin:augeas"
-    "Linux,Darwin,Windows:openssl"
-    "Linux,Darwin,Windows:boost"
-    "Linux,Darwin,Windows:bzip2"
-    "Linux,Darwin,Windows:gflags"
-    "Linux,Darwin,Windows:glog"
-    "Linux,Darwin,Windows:googletest"
-    "Linux,Darwin,Windows:libarchive"
-    "Linux:libaudit"
-    "Linux:libcryptsetup"
-    "Linux:libdevmapper"
-    "Linux:libgcrypt"
-    "Linux:libgpg-error"
-    "Linux:libiptables"
-    "Linux,Darwin:libmagic"
-    "Linux,Darwin,Windows:librdkafka"
-    "Linux:librpm"
-    "Linux:libudev"
+    "Linux,Darwin,Windows:lz4:liblz4"
+    "Linux,Darwin:augeas:augeas"
+    "Linux,Darwin,Windows:bzip2:bzip2"
+    "Linux,Darwin,Windows:gflags:gflags"
+    "Linux,Darwin,Windows:libarchive:libarchive"
+    "Linux:libaudit:audit"
+    "Linux:libcryptsetup:libcryptsetup"
+    "Linux:libdevmapper:devmapper"
+    "Linux:libgcrypt:libgcrypt"
+    "Linux:libgpg-error:gpg-error"
+    "Linux:libiptables:libiptc"
+    "Linux,Darwin:libmagic:libmagic"
+    "Linux,Darwin,Windows:librdkafka:rdkafka"
+    "Linux:librpm:rpm"
+    "Linux:libudev:libudev"
+    "Linux,Darwin,Windows:lzma:liblzma"
+    "Linux:popt:popt"
+    "Linux,Darwin,Windows:rapidjson:RapidJSON"
+    "Linux,Darwin,Windows:rocksdb:rocksdb"
+    "Linux,Darwin,Windows:sleuthkit:tsk"
+    "Linux,Darwin,Windows:sqlite:sqlite3"
+    "Linux,Darwin,Windows:thrift:thrift"
+    "Linux,Darwin,Windows:yara:yara"
+    "Linux,Darwin,Windows:zlib:zlib"
+    "Linux,Darwin,Windows:zstd:libzstd"
+    "Linux:expat:expat"
+    "Linux:dbus:dbus-1"
+    "Linux:libcap:libcap"
+  )
+  set(library_descriptor_list)
+  if(NOT OSQUERY_USE_SYSTEM_LIBRARIES)
+    list(APPEND library_descriptor_list
+      ${system_library_descriptor_list}
+      "Linux,Darwin,Windows:openssl"
+      "Linux,Darwin,Windows:boost"
+      "Linux,Darwin,Windows:glog"
+    )
+  endif()
+  list(APPEND library_descriptor_list
     "Linux,Darwin,Windows:linenoise-ng"
-    "Linux,Darwin,Windows:lzma"
-    "Linux:popt"
-    "Linux,Darwin,Windows:rapidjson"
-    "Linux,Darwin,Windows:rocksdb"
-    "Linux,Darwin,Windows:sleuthkit"
-    "Linux,Darwin,Windows:sqlite"
-    "Linux,Darwin,Windows:thrift"
     "Linux:util-linux"
-    "Linux,Darwin,Windows:yara"
-    "Linux,Darwin,Windows:zlib"
-    "Linux,Darwin,Windows:zstd"
-    "Linux:expat"
-    "Linux:dbus"
-    "Linux:libcap"
   )
 
   if(OSQUERY_BUILD_BPF)
@@ -130,9 +165,11 @@ function(importLibraries)
   endif()
 
   if(OSQUERY_BUILD_AWS)
-    list(APPEND library_descriptor_list
-      "Linux,Darwin,Windows:aws-sdk-cpp"
-    )
+    if(NOT OSQUERY_USE_SYSTEM_LIBRARIES)
+      list(APPEND library_descriptor_list
+        "Linux,Darwin,Windows:aws-sdk-cpp"
+      )
+    endif()
   endif()
 
   if(OSQUERY_BUILD_DPKG)
@@ -149,6 +186,62 @@ function(importLibraries)
 
   # Create a target that builds all the third party libraries for convenience
   add_custom_target(thirdparty_libraries)
+
+  if(OSQUERY_USE_SYSTEM_LIBRARIES)
+    add_system_cmake_dependency(
+      NAME OpenSSL
+      LINK_LIBRARIES OpenSSL::SSL OpenSSL::Crypto
+    )
+    add_system_cmake_dependency(
+      NAME Boost
+      COMPONENTS filesystem system chrono thread context
+      LINK_LIBRARIES Boost::chrono Boost::context Boost::filesystem Boost::system Boost::thread
+    )
+    add_system_cmake_dependency(
+      NAME glog
+      LINK_LIBRARIES glog::glog
+    )
+    add_system_cmake_dependency(
+      NAME GTest
+      OSQUERY_NAME thirdparty_googletest
+      LINK_LIBRARIES GTest::gmock GTest::gmock_main GTest::gtest GTest::gtest_main
+    )
+    add_system_cmake_dependency(
+      NAME GTest
+      OSQUERY_NAME thirdparty_googletest_headers
+    )
+
+    add_system_cmake_dependency(
+      NAME aws-cpp-sdk-core
+      LINK_LIBRARIES aws-cpp-sdk-core
+    )
+    add_system_cmake_dependency(
+      NAME aws-cpp-sdk-sts
+      LINK_LIBRARIES aws-cpp-sdk-sts thirdparty_aws-cpp-sdk-core
+    )
+    add_system_cmake_dependency(
+      NAME aws-cpp-sdk-kinesis
+      LINK_LIBRARIES aws-cpp-sdk-kinesis thirdparty_aws-cpp-sdk-core
+    )
+    add_system_cmake_dependency(
+      NAME aws-cpp-sdk-firehose
+      LINK_LIBRARIES aws-cpp-sdk-firehose thirdparty_aws-cpp-sdk-core
+    )
+    add_system_cmake_dependency(
+      NAME aws-cpp-sdk-ec2
+      LINK_LIBRARIES aws-cpp-sdk-ec2 thirdparty_aws-cpp-sdk-core
+    )
+
+    foreach(library_descriptor ${system_library_descriptor_list})
+      string(REPLACE ":" ";" library_descriptor "${library_descriptor}")
+      list(GET library_descriptor 0 platform_list)
+      list(GET library_descriptor 1 library)
+      list(GET library_descriptor 2 pkgconfig_library)
+      add_system_pkgconfig_dependency(${library} ${pkgconfig_library})
+    endforeach()
+
+    set_property(GLOBAL PROPERTY AUGEAS_LENSES_FOLDER_PATH "/usr/share/augeas/lenses/dist")
+  endif()
 
   foreach(library_descriptor ${library_descriptor_list})
     # Expand the library descriptor
