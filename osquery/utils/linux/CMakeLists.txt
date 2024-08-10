@@ -27,7 +27,7 @@ function(generateOsqueryUtilsLinux)
     osquery_cxx_settings
     osquery_utils_expected
     osquery_filesystem
-    thirdparty_libdpkg
+    # thirdparty_libdpkg
   )
 
   generateIncludeNamespace(osquery_utils_linux "osquery/utils/linux" "FILE_ONLY" ${public_header_files})
