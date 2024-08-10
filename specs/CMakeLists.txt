@@ -245,7 +245,7 @@ function(generateNativeTables)
     "posix/socket_events.table:linux,macos"
     "posix/sudoers.table:linux,macos"
     "posix/suid_bin.table:linux,macos"
-    "posix/system_controls.table:linux,macos"
+    # "posix/system_controls.table:linux,macos"
     "posix/ulimit_info.table:linux,macos"
     "posix/usb_devices.table:linux,macos"
     "posix/user_events.table:linux,macos"
