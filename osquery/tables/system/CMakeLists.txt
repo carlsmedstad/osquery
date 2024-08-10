@@ -57,7 +57,7 @@ function(generateOsqueryTablesSystemSystemtable)
       linux/dbus/uniquedbusmessage.cpp
       linux/acpi_tables.cpp
       linux/apt_sources.cpp
-      linux/block_devices.cpp
+      # linux/block_devices.cpp
       linux/certificates.cpp
       linux/disk_encryption.cpp
       linux/extended_attributes.cpp

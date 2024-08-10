@@ -198,7 +198,7 @@ function(generateNativeTables)
     "posix/acpi_tables.table:linux,macos"
     "posix/augeas.table:linux,macos"
     "posix/authorized_keys.table:linux,macos"
-    "posix/block_devices.table:linux,macos"
+    # "posix/block_devices.table:linux,macos"
     "posix/cpu_time.table:linux,macos"
     "posix/crontab.table:linux,macos"
     "posix/disk_encryption.table:linux,macos"
