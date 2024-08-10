@@ -138,17 +138,6 @@ function(importSourceSubmodule)
 
   set(directory_path "${CMAKE_SOURCE_DIR}/libraries/cmake/source/${ARGS_NAME}")
 
-  foreach(submodule_name ${ARGS_SUBMODULES} ${ARGS_SHALLOW_SUBMODULES})
-    list(FIND ARGS_SHALLOW_SUBMODULES "${submodule_name}" shallow_clone)
-    if(${shallow_clone} EQUAL -1)
-      set(shallow_clone false)
-    else()
-      set(shallow_clone true)
-    endif()
-
-    initializeGitSubmodule("${directory_path}/${submodule_name}" ${ARGS_NO_RECURSIVE} ${shallow_clone})
-  endforeach()
-
   foreach(submodule_to_patch ${ARGS_PATCH})
     set(patched_source_dir "${CMAKE_BINARY_DIR}/libs/src/patched-source/${ARGS_NAME}/${submodule_to_patch}")
 
