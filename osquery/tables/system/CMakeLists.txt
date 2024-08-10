@@ -43,7 +43,7 @@ function(generateOsqueryTablesSystemSystemtable)
       posix/smbios_utils.cpp
       posix/sudoers.cpp
       posix/suid_bin.cpp
-      posix/system_controls.cpp
+      # posix/system_controls.cpp
       posix/ulimit_info.cpp
     )
   endif()
@@ -83,7 +83,7 @@ function(generateOsqueryTablesSystemSystemtable)
       linux/shared_memory.cpp
       linux/smbios_tables.cpp
       linux/startup_items.cpp
-      linux/sysctl_utils.cpp
+      # linux/sysctl_utils.cpp
       linux/system_info.cpp
       linux/usb_devices.cpp
       linux/user_groups.cpp
