@@ -16,53 +16,6 @@ function(generateInstallDirectives)
     endif()
 
     install(
-      FILES "tools/deployment/linux_packaging/deb/conffiles"
-      DESTINATION "/control/deb"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/deb/osqueryd.service"
-      DESTINATION "/control/deb/lib/systemd/system"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/deb/copyright"
-      DESTINATION "/control/deb"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/deb/osquery.initd"
-      DESTINATION "/control/deb/etc/init.d"
-      RENAME "osqueryd"
-
-      PERMISSIONS
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ             GROUP_EXECUTE
-        WORLD_READ             WORLD_EXECUTE
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/rpm/osquery.initd"
-      DESTINATION "/control/rpm/etc/init.d"
-      RENAME "osqueryd"
-
-      PERMISSIONS
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ             GROUP_EXECUTE
-        WORLD_READ             WORLD_EXECUTE
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/rpm/osqueryd.service"
-      DESTINATION "/control/rpm/lib/systemd/system"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/postinst"
-      DESTINATION "/control"
-    )
-
-    install(
       TARGETS osqueryd
       DESTINATION "bin"
     )
@@ -93,18 +46,6 @@ function(generateInstallDirectives)
     )
 
     install(
-      DIRECTORY "${augeas_lenses_path}/"
-      DESTINATION "share/osquery/lenses"
-      FILES_MATCHING PATTERN "*.aug"
-      PATTERN "tests" EXCLUDE
-    )
-
-    install(
-      FILES "${augeas_lenses_path}/../COPYING"
-      DESTINATION "share/osquery/lenses"
-    )
-
-    install(
       DIRECTORY "packs"
       DESTINATION "share/osquery"
     )
@@ -112,24 +53,6 @@ function(generateInstallDirectives)
     install(
       FILES "${CMAKE_SOURCE_DIR}/tools/deployment/certs.pem"
       DESTINATION "share/osquery/certs"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/osqueryd.sysconfig"
-      DESTINATION "/control/deb/etc/default"
-      RENAME "osqueryd"
-    )
-
-    install(
-      FILES "tools/deployment/linux_packaging/osqueryd.sysconfig"
-      DESTINATION "/control/rpm/etc/sysconfig"
-      RENAME "osqueryd"
-    )
-
-    install(
-      FILES "LICENSE"
-      DESTINATION "/control"
-      RENAME "LICENSE.txt"
     )
 
   elseif(PLATFORM_WINDOWS)
